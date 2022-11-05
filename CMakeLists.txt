@@ -19,6 +19,8 @@ aux_source_directory(./luwu/utils UTIL_LIST)
 
 # 编译生成可执行程序
 add_executable(test_log "test/test_logger.cpp" ${BASE_LIST} ${UTIL_LIST})
+add_executable(test_assert "test/test_asserts.cpp" ${BASE_LIST} ${UTIL_LIST})
+add_executable(test_fiber "test/test_fiber.cpp" ${BASE_LIST} ${UTIL_LIST})
 
 # 编译生成动态库
 # add_library()

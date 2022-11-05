@@ -5,6 +5,9 @@
 #include "util.h"
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <execinfo.h>
+#include <sstream>
+#include <iostream>
 
 namespace luwu {
     uint32_t getThreadId() {
@@ -16,7 +19,8 @@ namespace luwu {
         return 0;
     }
 
-    // TODO 计算该系统运行了多长时间的逻辑有点问题
+    // 将 Logger 定义中的 create_time_ 初始化由 time(nullptr) 改为 create_time_(getElapseMs()) 基本满足要求
+    // 后续有更好的办法 ？ std::chrono ？
     uint64_t getElapseMs() {
         struct timespec ts{};
         clock_gettime(CLOCK_MONOTONIC_RAW, &ts);            // 系统开始运行到现在的时间
@@ -31,6 +35,33 @@ namespace luwu {
     }
 
     void setThreadName(const std::string &name) {
-        pthread_setname_np(pthread_self(), name.substr(0,15).c_str());
+        pthread_setname_np(pthread_self(), name.substr(0, 15).c_str());
+    }
+
+    void backtrace(std::vector<std::string> &bt, int size, int skip) {
+        void **array = (void **) ::malloc(sizeof(void *) * size);
+        int s = ::backtrace(array, size);
+
+        char **strings = ::backtrace_symbols(array, size);
+        if (strings == nullptr) {
+            std::cerr << "backtrace_symbols error" << std::endl;
+        }
+
+        for (int i = skip; i < s; ++i) {
+            bt.emplace_back(strings[i]);
+        }
+        ::free(array);
+        ::free(strings);
+    }
+
+    std::string backtraceToString(int size, int skip, const std::string &prefix) {
+        std::vector<std::string> bt;
+        backtrace(bt, size, skip);
+
+        std::stringstream ss;
+        for (const auto &i: bt) {
+            ss << prefix << " " << i << std::endl;
+        }
+        return ss.str();
     }
 }
