@@ -12,9 +12,9 @@ namespace luwu {
     // 全局静态变量，这里的全局指的是进程内，所以有多线程同时操作的可能
 
     // 只增不减，用来标识唯一的协程
-    static std::atomic<uint32_t> fiber_id{0};
+    static std::atomic<uint32_t> s_fiber_id{0};
     // 可增可减，用来记录当前正在运行的线程数量（进程级别）
-    static std::atomic<uint32_t> fiber_num{0};
+    static std::atomic<uint32_t> s_fiber_num{0};
 
     // 线程局部变量，不同线程有不同的对象
 
@@ -34,8 +34,8 @@ namespace luwu {
     static const uint32_t stack_size = 128 * 1024;
 
     Fiber::Fiber()
-        : id_(fiber_id++), state_(RUNNING), stack_size_(0), run_in_scheduler_(false) {
-        ++fiber_num;
+        : id_(s_fiber_id++), state_(RUNNING), stack_size_(0), run_in_scheduler_(false) {
+        ++s_fiber_num;
         SetThis(this);      // 创建主协程时线程没有其他协程，当前正在运行的协程，由于 this 指针的缘故，必须在这里设置
         if (::getcontext(&context_)) {
             LUWU_ASSERT2(false, "getcontext");
@@ -43,9 +43,9 @@ namespace luwu {
     }
 
     Fiber::Fiber(fiber_func func, bool run_in_scheduler)
-        : id_(fiber_id++), state_(READY), func_(std::move(func))
+        : id_(s_fiber_id++), state_(READY), func_(std::move(func))
         , stack_size_(stack_size), run_in_scheduler_(run_in_scheduler) {
-        ++fiber_num;
+        ++s_fiber_num;
 
         // 创建写成之前要看一下有没有主协程，如果没有要先创建主协程
         if (!t_main_fiber) {
@@ -67,7 +67,7 @@ namespace luwu {
     }
 
     Fiber::~Fiber() {
-        --fiber_num;
+        --s_fiber_num;
         if (stack_) {                       // 有栈空间，说明是普通协程
             LUWU_ASSERT(state_ == TERM);
             ::free(stack_);
@@ -141,7 +141,7 @@ namespace luwu {
     }
 
     uint32_t Fiber::TotalFibers() {
-        return fiber_num;
+        return s_fiber_num;
     }
 
     void Fiber::MainFunc() {
