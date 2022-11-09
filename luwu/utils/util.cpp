@@ -8,6 +8,7 @@
 #include <execinfo.h>
 #include <sstream>
 #include <iostream>
+#include "fiber.h"
 
 namespace luwu {
     uint32_t getThreadId() {
@@ -15,8 +16,7 @@ namespace luwu {
     }
 
     uint32_t getFiberId() {
-        // TODO Fiber::GetId()
-        return 0;
+        return Fiber::GetFiberId();
     }
 
     // 将 Logger 定义中的 create_time_ 初始化由 time(nullptr) 改为 create_time_(getElapseMs()) 基本满足要求

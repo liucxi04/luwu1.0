@@ -5,6 +5,7 @@
 #include "fiber.h"
 #include <atomic>
 #include <utility>
+#include "scheduler.h"
 #include "utils/asserts.h"
 
 namespace luwu {
@@ -47,12 +48,8 @@ namespace luwu {
         , stack_size_(stack_size), run_in_scheduler_(run_in_scheduler) {
         ++s_fiber_num;
 
-        // 创建写成之前要看一下有没有主协程，如果没有要先创建主协程
-        if (!t_main_fiber) {
-            t_main_fiber = Fiber::ptr(new Fiber);           // 创建主协程
-            LUWU_ASSERT(t_main_fiber);                         // 现在有主协程了
-            LUWU_ASSERT(t_thread_fiber == t_main_fiber.get()); // 当前正在运行的协程就是主协程
-        }
+        // 创建协程之前要看一下有没有主协程，如果没有要先创建主协程
+        LUWU_ASSERT(t_main_fiber);
 
         stack_ = ::malloc(stack_size_);
         if (::getcontext(&context_)) {
@@ -104,7 +101,9 @@ namespace luwu {
             state_ = READY;
         }
         if (run_in_scheduler_) {
-
+            if (swapcontext(&context_, &(Scheduler::GetSchedulerFiber()->context_))) {
+                LUWU_ASSERT2(false, "swapcontext error");
+            }
         } else {
             // 当前协程栈空间保存在第一个参数里，从第二个参数读出协程占空间恢复执行
             if (swapcontext(&context_, &(t_main_fiber->context_))) {
@@ -119,13 +118,21 @@ namespace luwu {
         SetThis(this);                                  // 当前协程需要恢复执行，要将线程正在执行的协程修改为当前协程
         state_ = RUNNING;
         if (run_in_scheduler_) {
-
+            if (swapcontext(&(Scheduler::GetSchedulerFiber()->context_), &context_)) {
+                LUWU_ASSERT2(false, "swapcontext error");
+            }
         } else {
             // 当前协程栈空间保存在第一个参数里，从第二个参数读出协程占空间恢复执行
             if (swapcontext(&(t_main_fiber->context_), &context_)) {
                 LUWU_ASSERT2(false, "swapcontext error");
             }
         }
+    }
+
+    void Fiber::InitMainFiber() {
+        t_main_fiber = Fiber::ptr(new Fiber);           // 创建主协程
+        LUWU_ASSERT(t_main_fiber);                         // 现在有主协程了
+        LUWU_ASSERT(t_thread_fiber == t_main_fiber.get()); // 当前正在运行的协程就是主协程
     }
 
     void Fiber::SetThis(Fiber *fiber) {

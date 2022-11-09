@@ -37,7 +37,7 @@ namespace luwu {
          * @param func 协程内需要执行的任务
          * @param run_in_scheduler 本协程是否接受协程调度器调度
          */
-        Fiber(fiber_func func, bool run_in_scheduler);
+        explicit Fiber(fiber_func func, bool run_in_scheduler = true);
 
         /**
          * @brief 析构函数
@@ -71,6 +71,7 @@ namespace luwu {
         // endregion
 
     public:
+        static void InitMainFiber();
         /**
          * @brief 将该协程设置为当前正在运行的协程
          * @param fiber 需要被设置的协程

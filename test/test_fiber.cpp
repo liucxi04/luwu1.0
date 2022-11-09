@@ -23,7 +23,7 @@ void run_in_fiber2() {
 // 线程函数
 void test_fiber() {
     std::cout << "test_fiber start" << std::endl;
-
+    Fiber::InitMainFiber();
     Fiber::ptr fiber(new Fiber(run_in_fiber1, false));
 
     std::cout << "do something" << std::endl;
