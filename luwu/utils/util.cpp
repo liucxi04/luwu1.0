@@ -3,12 +3,13 @@
 //
 
 #include "util.h"
+#include "fiber.h"
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <sys/time.h>
 #include <execinfo.h>
 #include <sstream>
 #include <iostream>
-#include "fiber.h"
 
 namespace luwu {
     uint32_t getThreadId() {
@@ -36,6 +37,12 @@ namespace luwu {
 
     void setThreadName(const std::string &name) {
         pthread_setname_np(pthread_self(), name.substr(0, 15).c_str());
+    }
+
+    uint64_t getCurrentTime() {
+        struct timeval val{};
+        gettimeofday(&val, nullptr);
+        return val.tv_sec * 1000 + val.tv_usec / 1000;
     }
 
     void backtrace(std::vector<std::string> &bt, int size, int skip) {

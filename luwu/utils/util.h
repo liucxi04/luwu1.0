@@ -42,6 +42,8 @@ namespace luwu {
     void setThreadName(const std::string &name);
 
 
+    uint64_t getCurrentTime();
+
     void backtrace(std::vector<std::string> &bt, int size, int skip);
 
     std::string backtraceToString(int size, int skip, const std::string &prefix = "");

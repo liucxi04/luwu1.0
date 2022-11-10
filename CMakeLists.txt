@@ -23,5 +23,6 @@ add_executable(test_assert "test/test_asserts.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_fiber "test/test_fiber.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_thread "test/test_thread.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_scheduler "test/test_scheduler.cpp" ${BASE_LIST} ${UTIL_LIST})
+add_executable(test_clock "test/test_clock.cpp" ${BASE_LIST} ${UTIL_LIST})
 # 编译生成动态库
 # add_library()
