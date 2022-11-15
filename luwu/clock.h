@@ -17,7 +17,7 @@ namespace luwu {
     /**
      * @brief 定时器
      */
-    class Clock : std::enable_shared_from_this<Clock> {
+    class Clock : public std::enable_shared_from_this<Clock> {
         friend class ClockManager;
 
     public:
@@ -132,7 +132,7 @@ namespace luwu {
          */
         void listExpiredCallback(std::vector<Clock::clock_callback> &callbacks);
 
-    private:
+    protected:
         /**
          * @brief 当插入一个定时器到堆顶时需要执行的操作
          */

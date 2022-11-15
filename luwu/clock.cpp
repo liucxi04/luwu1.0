@@ -77,7 +77,8 @@ namespace luwu {
     }
 
     Clock::Clock(bool recurring, uint64_t period, std::function<void()> callback, ClockManager *manager)
-        : recurring_(recurring), period_(period), time_(0), clock_callback_(std::move(callback)), manager_(manager) {
+        : recurring_(recurring), period_(period), time_(getCurrentTime() + period_)
+        , clock_callback_(std::move(callback)), manager_(manager) {
     }
     // endregion
 
