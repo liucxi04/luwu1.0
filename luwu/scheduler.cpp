@@ -4,6 +4,7 @@
 
 #include "scheduler.h"
 #include "utils/asserts.h"
+#include "hook.h"
 
 namespace luwu {
     // 当前线程所属的调度器，同一个调度器下的所有线程共享同一个实例
@@ -102,8 +103,7 @@ namespace luwu {
     }
 
     void Scheduler::run() {
-        // TODO hook
-        // set_hook_enable();
+        setHooked(true);
         SetThis(this);
         // 当前线程不是调度器所在的线程，那么就是子线程，所以需要初始化主协程和调度协程，这两个协程是同一个
         if (getThreadId() != caller_tid_) {
@@ -130,7 +130,11 @@ namespace luwu {
                         continue;
                     }
 
-                    // TODO hook
+                    // TODO hook 模块需要
+                    if (it->fiber_ && it->fiber_->getState() == Fiber::RUNNING) {
+                        ++it;
+                        continue;
+                    }
 
                     // 找到了一个合法的任务
                     LUWU_ASSERT(it->fiber_ || it->func_);

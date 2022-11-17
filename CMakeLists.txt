@@ -25,5 +25,6 @@ add_executable(test_thread "test/test_thread.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_scheduler "test/test_scheduler.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_clock "test/test_clock.cpp" ${BASE_LIST} ${UTIL_LIST})
 add_executable(test_reactor "test/test_reactor.cpp" ${BASE_LIST} ${UTIL_LIST})
+add_executable(test_ "test/test.cpp" ${BASE_LIST} ${UTIL_LIST})
 # 编译生成动态库
 # add_library()
