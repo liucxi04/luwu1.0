@@ -9,6 +9,7 @@
 #include <cstring>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <iostream>
 #include "logger.h"
 #include "utils/asserts.h"
 
@@ -35,27 +36,30 @@ namespace luwu {
 
     void Channel::triggerEvent(ReactorEvent::Event event) {
         LUWU_ASSERT(event_ & event);
-
+        event_ = static_cast<ReactorEvent::Event>(event_ & ~event);
         EventCallback &callback = getEventCallback(event);
         if (callback.fiber_) {
-            callback.scheduler_->addTask(callback.fiber_->shared_from_this());
+            callback.scheduler_->addTask(callback.fiber_);
         } else {
             callback.scheduler_->addTask(callback.func_);
         }
+        resetEventCallback(callback);
     }
 
     // region # Reactor::Reactor()
     Reactor::Reactor(std::string name, uint32_t thread_num, bool use_caller)
-            : Scheduler(std::move(name), thread_num, use_caller), epoll_fd_(::epoll_create1(EPOLL_CLOEXEC)),
-              wakeup_fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)) {
+            : Scheduler(std::move(name), thread_num, use_caller)
+            , epoll_fd_(::epoll_create1(EPOLL_CLOEXEC))
+            , wakeup_fd_(::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC))
+            , pending_event_num_(0) {
 
         LUWU_ASSERT(epoll_fd_ != -1);
         LUWU_ASSERT(wakeup_fd_ != -1);
 
         // 统一事件源，将 wakeup_fd 也加入 epoll 进行管理
         addEvent(wakeup_fd_, ReactorEvent::READ, [&]() {
-            uint64_t one = 1;
-            ::read(wakeup_fd_, &one, sizeof one);
+            eventfd_t et;
+            eventfd_read(wakeup_fd_, &et);
         });
 
         channelResize(32);
@@ -97,7 +101,7 @@ namespace luwu {
             channel = channels_[fd];
         }
 
-        // 不可以重复注册事件，如果要修改事件对应的回调，则应该先删除再添加
+        // 不可以重复注册事件
         Mutex::Lock lock1(channel->mutex_);
         LUWU_ASSERT(!(channel->event_ & event));
 
@@ -116,6 +120,7 @@ namespace luwu {
             return false;
         }
 
+        ++pending_event_num_;
         // Reactor 模型对应的部分也要修改
         channel->event_ = static_cast<ReactorEvent::Event>(channel->event_ | event);
         Channel::EventCallback &event_callback = channel->getEventCallback(event);
@@ -125,15 +130,14 @@ namespace luwu {
         if (cb) {
             event_callback.func_ = cb;
         } else {
-            // 回调函数为空，说明是一个回调函数中途 yield，需要将自己添加到 epoll 中，等待再次执行，所以把当前协程当作回调
-            // TODO
+            // 回调函数为空，说明是一个回调函数中途 yield，将自己添加到 epoll 中，等待再次执行，所以把当前协程当作回调
             event_callback.fiber_ = Fiber::GetThis()->shared_from_this();
             LUWU_ASSERT(event_callback.fiber_->getState() == Fiber::RUNNING);
         }
         return true;
     }
 
-    bool Reactor::delEvent(int fd, ReactorEvent::Event event) {
+    bool Reactor::delEvent(int fd, ReactorEvent::Event event, bool trigger) {
         // 取出 fd 对应的 channel，如果没有则出错
         RWMutex::ReadLock lock(mutex_);
         if (channels_.size() <= fd) {
@@ -148,6 +152,7 @@ namespace luwu {
             return false;
         }
 
+        // 使用系统调用修改底层 epoll
         epoll_event ev{};
         memset(&ev, 0, sizeof ev);
         ev.events = (channel->event_ & ~event) | EPOLLET;
@@ -162,6 +167,10 @@ namespace luwu {
             return false;
         }
 
+        --pending_event_num_;
+        if (trigger) {
+            channel->triggerEvent(event);
+        }
         channel->event_ = static_cast<ReactorEvent::Event>(channel->event_ & ~event);
         Channel::EventCallback &event_callback = channel->getEventCallback(event);
         Channel::resetEventCallback(event_callback);
@@ -175,7 +184,7 @@ namespace luwu {
     bool Reactor::stopping() {
         uint64_t timeout = getNextTime();
         // 定时器和调度器都没有任务时才可以停止
-        return timeout == ~0ull && Scheduler::stopping();
+        return timeout == ~0ull && pending_event_num_ == 0 && Scheduler::stopping();
     }
 
     void Reactor::idle() {
@@ -214,21 +223,44 @@ namespace luwu {
 
                 // TODO 多种事件的处理
                 // 现阶段只处理读写事件
+                uint32_t real_events = ReactorEvent::NONE;
                 if (event.events & EPOLLIN) {
-                    channel->triggerEvent(ReactorEvent::READ);
+                    real_events |= ReactorEvent::READ;
                 }
                 if (event.events & EPOLLOUT) {
+                    real_events |= ReactorEvent::WRITE;
+                }
+
+                uint32_t left_events = (channel->event_ & ~real_events);
+                int op = left_events ? EPOLL_CTL_MOD : EPOLL_CTL_DEL;
+                event.events = left_events | EPOLLET;
+                int rt = epoll_ctl(epoll_fd_, op, channel->fd_, &event);
+                if (rt) {
+                    LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "epoll_ctl(" << epoll_fd_ << ", "
+                                                    << op << ", " << channel->fd_ << ", " << event.events << "):"
+                                                    << rt << "(" << errno << ")(" << strerror(errno) << ")";
+                    continue;
+                }
+
+                if (real_events & EPOLLIN) {
+                    channel->triggerEvent(ReactorEvent::READ);
+                    --pending_event_num_;
+                }
+                if (real_events & EPOLLOUT) {
                     channel->triggerEvent(ReactorEvent::WRITE);
+                    --pending_event_num_;
                 }
             }  // end for
 
-            Fiber::GetThis()->yield();
+            auto cur = Fiber::GetThis();
+            auto raw_ptr = cur.get();
+            cur.reset();                                    // 手动使引用计数减一
+            raw_ptr->yield();
         } // end while
     }
 
     void Reactor::tickle() {
-        uint64_t one = 1;
-        ::write(wakeup_fd_, &one, sizeof one);
+        eventfd_write(wakeup_fd_, 1);
     }
 
     void Reactor::onClockInsertAtFront() {

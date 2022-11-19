@@ -5,6 +5,7 @@
 #ifndef LUWU_REACTOR_H
 #define LUWU_REACTOR_H
 
+#include <atomic>
 #include "utils/noncopyable.h"
 #include "scheduler.h"
 #include "clock.h"
@@ -109,9 +110,10 @@ namespace luwu {
          * @brief 将 fd 的 event 事件从 epoll 中删除
          * @param fd socket 描述符
          * @param event 感不兴趣的事件
+         * @param trigger 删除之前是否触发一次
          * @return 操作是否成功
          */
-        bool delEvent(int fd, ReactorEvent::Event event);
+        bool delEvent(int fd, ReactorEvent::Event event, bool trigger = false);
 
         /**
          * @brief 获取当前线程的反应堆模型
@@ -152,6 +154,8 @@ namespace luwu {
         int epoll_fd_;
         /// event fd，用于唤醒 epoll_wait
         int wakeup_fd_;
+        /// 当前等待执行的 IO 事件的数量
+        std::atomic_uint32_t pending_event_num_;
         /// epoll 所管理的所有 socket fd
         std::vector<Channel *> channels_;
         RWMutex mutex_;
