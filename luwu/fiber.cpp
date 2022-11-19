@@ -96,15 +96,16 @@ namespace luwu {
     void Fiber::yield() {
         LUWU_ASSERT(state_ == RUNNING || state_ == TERM);
 
-        SetThis(t_main_fiber.get());                    // 当前协程退出执行，要将线程正在执行的协程修改为主协程
         if (state_ == RUNNING) {
             state_ = READY;
         }
         if (run_in_scheduler_) {
+            SetThis(Scheduler::GetSchedulerFiber());        // 当前协程退出执行，要将线程正在执行的协程修改为调度协程
             if (swapcontext(&context_, &(Scheduler::GetSchedulerFiber()->context_))) {
                 LUWU_ASSERT2(false, "swapcontext error");
             }
         } else {
+            SetThis(t_main_fiber.get());                    // 当前协程退出执行，要将线程正在执行的协程修改为主协程
             // 当前协程栈空间保存在第一个参数里，从第二个参数读出协程占空间恢复执行
             if (swapcontext(&context_, &(t_main_fiber->context_))) {
                 LUWU_ASSERT2(false, "swapcontext error");
@@ -139,8 +140,8 @@ namespace luwu {
         t_thread_fiber = fiber;
     }
 
-    Fiber *Fiber::GetThis() {
-        return t_thread_fiber;
+    Fiber::ptr Fiber::GetThis() {
+        return t_thread_fiber->shared_from_this();
     }
 
     uint32_t Fiber::GetFiberId() {
@@ -158,6 +159,9 @@ namespace luwu {
         cur->func_();
         cur->func_ = nullptr;
         cur->state_ = TERM;
-        cur->yield();                   // 协程运行结束时必须要 yield 一次，以返回主协程
+
+        auto raw_ptr = cur.get();
+        cur.reset();                        // 手动让引用计数减一
+        raw_ptr->yield();
     }
 }
