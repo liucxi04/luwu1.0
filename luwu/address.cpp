@@ -7,12 +7,9 @@
 #include <sstream>
 #include <cstring>
 #include "utils/asserts.h"
+#include "utils/endian.h"
 
 namespace luwu {
-
-    int Address::getFamily() const {
-        return getAddr()->sa_family;
-    }
 
     Address::ptr Address::Create(const sockaddr *addr) {
         if (!addr) {
@@ -25,9 +22,14 @@ namespace luwu {
                 address.reset(new IPv4Address(*(sockaddr_in *)(addr)));
                 break;
             default:
+                address.reset();
                 break;
         }
         return address;
+    }
+
+    int Address::getFamily() const {
+        return getAddr()->sa_family;
     }
 
     std::string Address::toString() const {
@@ -36,21 +38,21 @@ namespace luwu {
         return ss.str();
     }
 
-    IPv4Address::ptr IPv4Address::Create(const std::string& address, uint16_t port) {
+    IPv4Address::ptr IPv4Address::Create(const char *address, uint16_t port) {
         IPv4Address::ptr addr(new IPv4Address);
-        int rt = inet_pton(AF_INET, address.c_str(), &addr->addr_.sin_addr);
+        addr->addr_.sin_port = onBigEndian(port);
+        int rt = inet_pton(AF_INET, address, &addr->addr_.sin_addr);
         LUWU_ASSERT(rt > 0);
-        addr->addr_.sin_port = port;
         return addr;
     }
 
-    IPv4Address::IPv4Address(sockaddr_in address) : addr_(address) { }
+    IPv4Address::IPv4Address(const sockaddr_in &address) : addr_(address) { }
 
     IPv4Address::IPv4Address(uint32_t address, uint16_t port) {
         memset(&addr_, 0, sizeof addr_);
         addr_.sin_family = AF_INET;
-        addr_.sin_addr.s_addr = address;
-        addr_.sin_port = port;
+        addr_.sin_addr.s_addr = onBigEndian(address);
+        addr_.sin_port = onBigEndian(port);
     }
 
     const sockaddr *IPv4Address::getAddr() const {
@@ -66,12 +68,12 @@ namespace luwu {
     }
 
     std::ostream &IPv4Address::dump(std::ostream &os) const {
-        uint32_t address = addr_.sin_addr.s_addr;
+        uint32_t address = onBigEndian(addr_.sin_addr.s_addr);
         os << ((address >> 24) & 0xff) << "."
            << ((address >> 16) & 0xff) << "."
            << ((address >> 8 ) & 0xff) << "."
            << ((address      ) & 0xff);
-        os << ":" << addr_.sin_port;
+        os << ":" << onBigEndian(addr_.sin_port);
         return os;
     }
 

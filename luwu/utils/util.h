@@ -41,7 +41,10 @@ namespace luwu {
      */
     void setThreadName(const std::string &name);
 
-
+    /**
+     * @brief 获取当前时间
+     * @return 系统当前时间
+     */
     uint64_t getCurrentTime();
 
     void backtrace(std::vector<std::string> &bt, int size, int skip);

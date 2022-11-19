@@ -47,9 +47,11 @@ if (BUILD_TEST)
     add_executable(test_hook "test/test_hook.cpp" ${LIB_SRC})
     target_link_libraries(test_hook ${LIBS})
 
+    add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
+    target_link_libraries(test_address ${LIBS})
+
     add_executable(test_ "test/test.cpp" ${LIB_SRC})
     target_link_libraries(test_ ${LIBS})
-
 endif ()
 
 # 编译生成动态库
