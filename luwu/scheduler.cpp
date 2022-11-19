@@ -108,7 +108,7 @@ namespace luwu {
         // 当前线程不是调度器所在的线程，那么就是子线程，所以需要初始化主协程和调度协程，这两个协程是同一个
         if (getThreadId() != caller_tid_) {
             Fiber::InitMainFiber();
-            t_scheduler_fiber = Fiber::GetThis();
+            t_scheduler_fiber = Fiber::GetThis().get();
         }
 
         // 空闲协程
@@ -130,7 +130,10 @@ namespace luwu {
                         continue;
                     }
 
-                    // TODO hook 模块需要
+                    // [BUG FIX]: hook IO 相关的系统调用时，在检测到 IO 未就绪的情况下，会先添加对应的读写事件，再 yield 当前协程，
+                    // 等 IO 就绪后再 resume 当前协程。多线程高并发情境下，有可能发生刚添加事件就被触发的情况，如果此时当前协程还未来得及
+                    // yield，则这里就有可能出现协程状态仍为 RUNNING 的情况。这里简单地跳过这种情况，以损失一点性能为代价，
+                    // 否则整个协程框架都要大改
                     if (it->fiber_ && it->fiber_->getState() == Fiber::RUNNING) {
                         ++it;
                         continue;
@@ -139,7 +142,7 @@ namespace luwu {
                     // 找到了一个合法的任务
                     LUWU_ASSERT(it->fiber_ || it->func_);
                     task = *it;
-                    tasks_.erase(it);
+                    tasks_.erase(it++);             // 这里必须要 ++，否则指针不变下面无法判断是否到达 tasks_.end()
                     ++active_thread_num_;
                     break;
                 }

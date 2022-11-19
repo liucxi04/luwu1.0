@@ -145,6 +145,9 @@ namespace luwu {
     }
 
     uint32_t Fiber::GetFiberId() {
+        if (!t_thread_fiber) {
+            return -1;
+        }
         return t_thread_fiber->getId();
     }
 
