@@ -50,6 +50,9 @@ if (BUILD_TEST)
     add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
     target_link_libraries(test_address ${LIBS})
 
+    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
+    target_link_libraries(test_socket ${LIBS})
+
     add_executable(test_ "test/test.cpp" ${LIB_SRC})
     target_link_libraries(test_ ${LIBS})
 endif ()

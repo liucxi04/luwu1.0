@@ -11,38 +11,24 @@
 #include "reactor.h"
 
 namespace luwu {
-    Socket::ptr Socket::CreateTCP() {
-        Socket::ptr sock(new Socket(AF_INET, SOCK_STREAM, 0));
+    Socket::ptr Socket::CreateTCP(int family) {
+        Socket::ptr sock(new Socket(family, SOCK_STREAM, 0));
         return sock;
     }
 
-    Socket::ptr Socket::CreateTCP(const Address::ptr &addr) {
-        Socket::ptr sock(new Socket(addr->getFamily(), SOCK_STREAM, 0));
+    Socket::ptr Socket::CreateUDP(int family) {
+        Socket::ptr sock(new Socket(family, SOCK_DGRAM, 0));
         return sock;
     }
 
-    Socket::ptr Socket::CreateUDP() {
-        Socket::ptr sock(new Socket(AF_INET, SOCK_DGRAM, 0));
-        return sock;
-    }
-
-    Socket::ptr Socket::CreateUDP(const Address::ptr &addr) {
-        Socket::ptr sock(new Socket(addr->getFamily(), SOCK_DGRAM, 0));
-        return sock;
-    }
-
+    // region Socket::Socket()
     Socket::Socket(int family, int type, int protocol)
         : fd_(::socket(family, type, protocol))
         , family_(family), type_(type), protocol_(protocol), connected_(false) {
         LUWU_ASSERT(fd_ != -1);
-        setNonblock();
+        setReuseAndNodelay();
     }
-
-    Socket::Socket(int fd, int family, int type, int protocol)
-        : fd_(fd), family_(family), type_(type), protocol_(protocol), connected_(false){
-        LUWU_ASSERT(fd_ != -1);
-        setNonblock();
-    }
+    // endregion
 
     Socket::~Socket() {
         close();
@@ -72,28 +58,13 @@ namespace luwu {
         setOption(SOL_SOCKET, SO_SNDTIMEO, &tv);
     }
 
-    bool Socket::enableRead() {
-        return Reactor::GetThis()->addEvent(fd_, ReactorEvent::READ);
-    }
-
-    bool Socket::enableWrite() {
-        return Reactor::GetThis()->addEvent(fd_, ReactorEvent::WRITE);
-    }
-
-    bool Socket::cancelRead() {
-        return Reactor::GetThis()->delEvent(fd_, ReactorEvent::WRITE);
-    }
-
-    bool Socket::cancelWrite() {
-        return Reactor::GetThis()->delEvent(fd_, ReactorEvent::READ);
-    }
-
     bool Socket::bind(const Address::ptr& addr) {
         LUWU_ASSERT(fd_ != -1);
         if (addr->getFamily() != family_) {
             return false;
         }
         if (::bind(fd_, addr->getAddr(), addr->getAddrLen())) {
+            close();
             return false;
         }
         getLocalAddress();
@@ -103,21 +74,19 @@ namespace luwu {
     bool Socket::listen(int backlog) {
         LUWU_ASSERT(fd_ != -1);
         if (::listen(fd_, backlog)) {
+            close();
             return false;
         }
         return true;
     }
 
     Socket::ptr Socket::accept() {
-        int fd = ::accept(fd_, nullptr, nullptr);
-        LUWU_ASSERT(fd != -1);
-
-        Socket::ptr sock(new Socket(fd, family_, type_, protocol_));
-
-        auto ctx = FdMgr::GetInstance().get(fd);
-        if (!ctx || !ctx->init() || ctx->isClose() || !ctx->isSocket()) {
+        LUWU_ASSERT(fd_ != -1);
+        int conn_fd = ::accept(fd_, nullptr, nullptr);
+        if (conn_fd == -1) {
             return nullptr;
         }
+        Socket::ptr sock(new Socket(conn_fd, family_, type_, protocol_));
         sock->connected_ = true;
         sock->setLocalAddress();
         sock->setPeerAddress();
@@ -134,17 +103,9 @@ namespace luwu {
             return false;
         }
         connected_ = true;
+        setLocalAddress();
         peer_address = addr;
-        getLocalAddress();
         return true;
-    }
-
-    bool Socket::reconnect() {
-        if (!peer_address) {
-            return false;
-        }
-        local_address.reset();
-        return connect(peer_address);
     }
 
     bool Socket::close() {
@@ -206,7 +167,7 @@ namespace luwu {
         if (isConnected()) {
             msghdr msg{};
             memset(&msg, 0, sizeof msg);
-            msg.msg_iov = const_cast<iovec *>(buffer);
+            msg.msg_iov = static_cast<iovec *>(buffer);
             msg.msg_iovlen = length;
             return ::recvmsg(fd_, &msg, flags);
         }
@@ -234,38 +195,42 @@ namespace luwu {
         return -1;
     }
 
-    void Socket::setLocalAddress() {
-        Address::ptr addr;
-        switch (family_) {
-            case AF_INET:
-                addr.reset(new IPv4Address);
-                break;
-            default:
-                addr.reset();
-                break;
+    int Socket::getError() const {
+        int error = 0;
+        if (!getOption(SOL_SOCKET, SO_ERROR, error)) {
+            return -1;
         }
-
-        socklen_t addrlen = addr->getAddrLen();
-        if (getsockname(fd_, addr->getAddr(), &addrlen) == 0) {
-            local_address = addr;
-        }
+        return error;
     }
 
-    void Socket::setPeerAddress() {
-        Address::ptr addr;
-        switch (family_) {
-            case AF_INET:
-                addr.reset(new IPv4Address);
-                break;
-            default:
-                addr.reset();
-                break;
-        }
+    bool Socket::cancelRead() {
+        return Reactor::GetThis()->delEvent(fd_, ReactorEvent::READ, true);
+    }
 
-        socklen_t addrlen = addr->getAddrLen();
-        if (getpeername(fd_, addr->getAddr(), &addrlen) == 0) {
-            local_address = addr;
+    bool Socket::cancelWrite() {
+        return Reactor::GetThis()->delEvent(fd_, ReactorEvent::WRITE, true);
+    }
+
+    std::ostream &Socket::dump(std::ostream &os) const {
+        os << "[Socket sock = " << fd_
+           << " is_connected = " << connected_
+           << " family = " << family_
+           << " type = " << type_
+           << " protocol = " << protocol_;
+        if (local_address) {
+            os << " local_address = " << local_address->toString();
         }
+        if (peer_address) {
+            os << " remote_address = " << peer_address->toString();
+        }
+        os << "]";
+        return os;
+    }
+
+    std::string Socket::toString() const {
+        std::stringstream ss;
+        dump(ss);
+        return ss.str();
     }
 
     bool Socket::getOption(int level, int option, void *result, socklen_t *len) const {
@@ -284,7 +249,7 @@ namespace luwu {
         return true;
     }
 
-    void Socket::setNonblock() {
+    void Socket::setReuseAndNodelay() {
         int val = 1;
         setOption(SOL_SOCKET, SO_REUSEADDR, val);
         if (type_ == SOCK_STREAM) {
@@ -292,33 +257,53 @@ namespace luwu {
         }
     }
 
-    int Socket::getError() const {
-        int error = 0;
-        if (!getOption(SOL_SOCKET, SO_ERROR, error)) {
-            return -1;
-        }
-        return error;
+    // region # Socket::Socket(fd)
+    Socket::Socket(int fd, int family, int type, int protocol)
+            : fd_(fd), family_(family), type_(type), protocol_(protocol), connected_(false){
+        LUWU_ASSERT(fd_ != -1);
+        setReuseAndNodelay();
     }
+    // endregion
 
-    std::ostream &Socket::dump(std::ostream &os) const {
-        os << "[Socket sock=" << fd_
-           << " is_connected=" << connected_
-           << " family=" << family_
-           << " type=" << type_
-           << " protocol=" << protocol_;
+    void Socket::setLocalAddress() {
         if (local_address) {
-            os << " local_address=" << local_address->toString();
+            return;
         }
-        if (peer_address) {
-            os << " remote_address=" << peer_address->toString();
+
+        Address::ptr addr;
+        switch (family_) {
+            case AF_INET:
+                addr.reset(new IPv4Address);
+                break;
+            default:
+                addr.reset();
+                break;
         }
-        os << "]";
-        return os;
+
+        socklen_t addrlen = addr->getAddrLen();
+        if (getsockname(fd_, addr->getAddr(), &addrlen) == 0) {
+            local_address = addr;
+        }
     }
 
-    std::string Socket::toString() const {
-        std::stringstream ss;
-        dump(ss);
-        return ss.str();
+    void Socket::setPeerAddress() {
+        if (peer_address) {
+            return;
+        }
+
+        Address::ptr addr;
+        switch (family_) {
+            case AF_INET:
+                addr.reset(new IPv4Address);
+                break;
+            default:
+                addr.reset();
+                break;
+        }
+
+        socklen_t addrlen = addr->getAddrLen();
+        if (getpeername(fd_, addr->getAddr(), &addrlen) == 0) {
+            local_address = addr;
+        }
     }
 }
