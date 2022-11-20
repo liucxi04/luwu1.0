@@ -26,32 +26,35 @@ set(LIBS pthread dl)
 
 # 编译生成可执行程序
 if (BUILD_TEST)
-    add_executable(test_log "test/test_logger.cpp" ${LIB_SRC})
-    target_link_libraries(test_log ${LIBS})
+#    add_executable(test_log "test/test_logger.cpp" ${LIB_SRC})
+#    target_link_libraries(test_log ${LIBS})
+#
+#    add_executable(test_fiber "test/test_fiber.cpp" ${LIB_SRC})
+#    target_link_libraries(test_fiber ${LIBS})
+#
+#    add_executable(test_thread "test/test_thread.cpp" ${LIB_SRC})
+#    target_link_libraries(test_thread ${LIBS})
+#
+#    add_executable(test_scheduler "test/test_scheduler.cpp" ${LIB_SRC})
+#    target_link_libraries(test_scheduler ${LIBS})
+#
+#    add_executable(test_clock "test/test_clock.cpp" ${LIB_SRC})
+#    target_link_libraries(test_clock ${LIBS})
+#
+#    add_executable(test_reactor "test/test_reactor.cpp" ${LIB_SRC})
+#    target_link_libraries(test_reactor ${LIBS})
+#
+#    add_executable(test_hook "test/test_hook.cpp" ${LIB_SRC})
+#    target_link_libraries(test_hook ${LIBS})
+#
+#    add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
+#    target_link_libraries(test_address ${LIBS})
+#
+#    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
+#    target_link_libraries(test_socket ${LIBS})
 
-    add_executable(test_fiber "test/test_fiber.cpp" ${LIB_SRC})
-    target_link_libraries(test_fiber ${LIBS})
-
-    add_executable(test_thread "test/test_thread.cpp" ${LIB_SRC})
-    target_link_libraries(test_thread ${LIBS})
-
-    add_executable(test_scheduler "test/test_scheduler.cpp" ${LIB_SRC})
-    target_link_libraries(test_scheduler ${LIBS})
-
-    add_executable(test_clock "test/test_clock.cpp" ${LIB_SRC})
-    target_link_libraries(test_clock ${LIBS})
-
-    add_executable(test_reactor "test/test_reactor.cpp" ${LIB_SRC})
-    target_link_libraries(test_reactor ${LIBS})
-
-    add_executable(test_hook "test/test_hook.cpp" ${LIB_SRC})
-    target_link_libraries(test_hook ${LIBS})
-
-    add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
-    target_link_libraries(test_address ${LIBS})
-
-    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
-    target_link_libraries(test_socket ${LIBS})
+    add_executable(test_bytearray "test/test_bytearray.cpp" ${LIB_SRC})
+    target_link_libraries(test_bytearray ${LIBS})
 
     add_executable(test_ "test/test.cpp" ${LIB_SRC})
     target_link_libraries(test_ ${LIBS})

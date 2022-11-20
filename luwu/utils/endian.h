@@ -28,6 +28,12 @@ namespace luwu {
         return static_cast<T>(bswap_16(static_cast<uint16_t>(value)));
     }
 
+    template<typename T>
+    typename std::enable_if<sizeof(T) == sizeof(uint8_t), T>::type
+    byteSwap(T value) {
+        return value;
+    }
+
 #if BYTE_ORDER == BIG_ENDIAN
     template<typename T>
     T onBigEndian(T t) {
