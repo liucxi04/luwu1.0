@@ -126,6 +126,8 @@ namespace luwu {
         /// 字节序，默认大端
         uint16_t endian_;
     };
+
+    // TODO 数据压缩存储
 }
 
 #endif //LUWU_BYTE_ARRAY_H
