@@ -19,7 +19,9 @@ option(BUILD_TEST "ON for compile test" ON)
 # 定义参与编译的源文件
 aux_source_directory(./luwu BASE_LIST)
 aux_source_directory(./luwu/utils UTIL_LIST)
-set(LIB_SRC ${BASE_LIST} ${UTIL_LIST})
+aux_source_directory(./luwu/http HTTP_LIST)
+aux_source_directory(./luwu/http/http-parser PARSER_LIST)
+set(LIB_SRC ${BASE_LIST} ${UTIL_LIST} ${HTTP_LIST} ${PARSER_LIST})
 
 # 定义需要连接的动态库
 set(LIBS pthread dl)
@@ -53,11 +55,17 @@ if (BUILD_TEST)
 #    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
 #    target_link_libraries(test_socket ${LIBS})
 
-    add_executable(test_bytearray "test/test_bytearray.cpp" ${LIB_SRC})
-    target_link_libraries(test_bytearray ${LIBS})
+#    add_executable(test_bytearray "test/test_bytearray.cpp" ${LIB_SRC})
+#    target_link_libraries(test_bytearray ${LIBS})
 
-    add_executable(test_ "test/test.cpp" ${LIB_SRC})
-    target_link_libraries(test_ ${LIBS})
+#    add_executable(test_tcpserver "test/test_tcpserver.cpp" ${LIB_SRC})
+#    target_link_libraries(test_tcpserver ${LIBS})
+
+    add_executable(test_http "test/test_http.cpp" ${LIB_SRC})
+    target_link_libraries(test_http ${LIBS})
+
+#    add_executable(test_ "test/test.cpp" ${LIB_SRC})
+#    target_link_libraries(test_ ${LIBS})
 endif ()
 
 # 编译生成动态库
