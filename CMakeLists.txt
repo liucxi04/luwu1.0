@@ -61,8 +61,11 @@ if (BUILD_TEST)
 #    add_executable(test_tcpserver "test/test_tcpserver.cpp" ${LIB_SRC})
 #    target_link_libraries(test_tcpserver ${LIBS})
 
-    add_executable(test_http "test/test_http.cpp" ${LIB_SRC})
-    target_link_libraries(test_http ${LIBS})
+#    add_executable(test_http "test/test_http.cpp" ${LIB_SRC})
+#    target_link_libraries(test_http ${LIBS})
+
+    add_executable(test_httpparser "test/test_httpparser.cpp" ${LIB_SRC})
+    target_link_libraries(test_httpparser ${LIBS})
 
 #    add_executable(test_ "test/test.cpp" ${LIB_SRC})
 #    target_link_libraries(test_ ${LIBS})
