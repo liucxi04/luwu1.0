@@ -10,12 +10,24 @@
 
 namespace luwu {
     namespace http {
+        /**
+         * @brief HTTP 请求解析器
+         */
         class HttpRequestParser {
         public:
             using ptr = std::shared_ptr<HttpRequestParser>;
 
+            /**
+             * @brief 构造函数
+             */
             HttpRequestParser();
 
+            /**
+             * @brief 执行解析
+             * @param data 需要解析的 HTTP 请求报文
+             * @param len 报文长度
+             * @return 成功解析的报文的长度
+             */
             size_t execute(char *data, size_t len);
 
             // region # Getter
@@ -37,9 +49,9 @@ namespace luwu {
             // endregion
 
         private:
-            /// http 请求解析是否完成
+            /// HTTP 请求解析是否完成
             bool finished_;
-            /// http 请求解析是否出错
+            /// HTTP 请求解析是否出错
             int error_;
             /// 临时存储请求头名称
             std::string filed_;
@@ -49,12 +61,24 @@ namespace luwu {
             HttpRequest::ptr data_;
         };
 
+        /**
+         * @brief HTTP 响应解析器
+         */
         class HttpResponseParser {
         public:
             using ptr = std::shared_ptr<HttpResponseParser>;
 
+            /**
+             * @brief 构造函数
+             */
             HttpResponseParser();
 
+            /**
+             * @brief 执行解析
+             * @param data
+             * @param len
+             * @return
+             */
             size_t execute(char *data, size_t len);
 
             // region # Getter and Setter

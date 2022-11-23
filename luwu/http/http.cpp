@@ -49,7 +49,7 @@ namespace luwu {
     namespace http {
         HttpRequest::HttpRequest(HttpMethod method, uint8_t version, bool close)
             : method_(method), version_(version), close_(close) , step_(0) {
-            std::string conn = getHeader("connection");
+            std::string conn = getHeader("Connection");
             if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
                 close_ = true;
             }
@@ -100,6 +100,7 @@ namespace luwu {
             return ss.str();
         }
 
+        // 此处需要对 url 进行解码
 #define PARSE_PARAM(str, data, flag)                                \
     size_t pos = 0;                                                 \
     do {                                                            \
@@ -152,6 +153,10 @@ namespace luwu {
 
         HttpResponse::HttpResponse(uint8_t version, bool close)
             : version_(version), status_(HttpStatus::OK), close_(close) {
+            std::string conn = getHeader("Connection");
+            if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
+                close_ = true;
+            }
         }
 
         const std::string &HttpResponse::getHeader(const std::string &key, const std::string &default_value) const {

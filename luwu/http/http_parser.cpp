@@ -7,6 +7,7 @@
 
 namespace luwu {
     namespace http {
+        // TODO 用在哪里
         static const uint64_t s_http_request_buffer_size = 4 * 1024;
         static const uint64_t s_http_request_max_body_size = 64 * 1024 * 1024;
         static const uint64_t s_http_response_buffer_size = 4 * 1024;
@@ -123,7 +124,7 @@ namespace luwu {
                 setError(static_cast<int>(parser_.http_errno));
             } else {
                 if (n < len) {
-                    // TODO ???
+                    // 还没有解析完，把没有解析的部分移到最前面
                     memmove(data, data + n, len - n);
                 }
             }
@@ -217,6 +218,7 @@ namespace luwu {
                 setError(static_cast<int>(parser_.http_errno));
             } else {
                 if (n < len) {
+                    // 还没有解析完，把没有解析的部分移到最前面
                     memmove(data, data + n, len - n);
                 }
             }

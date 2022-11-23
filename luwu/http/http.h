@@ -11,6 +11,9 @@
 
 namespace luwu {
     namespace http {
+        /**
+         * @brief HTTP 请求方法
+         */
         enum HttpMethod {
             DELETE = 0,
             GET = 1,
@@ -23,6 +26,9 @@ namespace luwu {
             OTHER = 100,
         };
 
+        /**
+         * @brief HTTP 响应状态
+         */
         enum HttpStatus {
             OK = 200,
             NO_CONTENT = 204,
@@ -47,15 +53,34 @@ namespace luwu {
             OTHER_STATUS = 1000,
         };
 
+        /**
+         * @brief HTTP 请求方法转字符串
+         * @param method HTTP 请求方法
+         * @return 字符串
+         */
         static std::string HttpMethodToString(HttpMethod method);
 
+        /**
+         * @brief HTTP 响应状态转字符串
+         * @param status HTTP 响应状态
+         * @return 字符串
+         */
         static std::string HttpStatusToString(HttpStatus status);
 
+        /**
+         * @brief HTTP 请求
+         */
         class HttpRequest {
         public:
             using ptr = std::shared_ptr<HttpRequest>;
             using MapType = std::unordered_map<std::string, std::string>;
 
+            /**
+             * @brief 构造函数
+             * @param method 请求方法
+             * @param version 协议版本
+             * @param close 是否保持长连接
+             */
             explicit HttpRequest(HttpMethod method = HttpMethod::GET, uint8_t version = 0x11, bool close = true);
 
             // region # Getter and Setter
@@ -112,15 +137,33 @@ namespace luwu {
             void setClose(bool close) { close_ = close; }
             // endregion
 
+            /**
+             * @brief 将 HTTP 请求格式化到输出流
+             * @param os 输出流
+             * @return 输出流
+             */
             std::ostream &dump(std::ostream &os) const;
 
+            /**
+             * @brief 将 HttpRequest 格式化为字符串
+             * @return 字符串
+             */
             std::string toString() const;
 
         private:
+            /**
+             * @brief 提取 query 部分的参数
+             */
             void initQueryParam();
 
+            /**
+             * @brief 提取 body 部分的参数
+             */
             void initBodyParam();
 
+            /**
+             * @brief 提取请求头内包含的 cookie
+             */
             void initCookies();
 
         private:
@@ -149,11 +192,19 @@ namespace luwu {
             bool close_;
         };
 
+        /**
+         * @brief HTTP 响应
+         */
         class HttpResponse {
         public:
             using ptr = std::shared_ptr<HttpResponse>;
             using MapType = std::unordered_map<std::string, std::string>;
 
+            /**
+             * @brief 构造函数
+             * @param version 协议版本
+             * @param close 是否保持长连接
+             */
             explicit HttpResponse(uint8_t version = 0x11, bool close = true);
 
             // region # Getter and Setter
@@ -180,15 +231,37 @@ namespace luwu {
             bool isClose() const { return close_; }
 
             void setClose(bool close) { close_ = close; }
+            // endregion
 
+            /**
+             * @brief 向响应头添加 cookie
+             * @param key cookie 键
+             * @param val cookie 值
+             * @param expired 过期时间
+             * @param path 指定路径
+             * @param domain 指定主机
+             * @param secure 指定只允许 HTTPS
+             */
             void setCookie(const std::string &key, const std::string &val, time_t expired = 0,
                            const std::string &path = "", const std::string &domain = "", bool secure = false);
 
+            /**
+             * @brief 设置重定向
+             * @param uri 重定向后的路径
+             */
             void setRedirect(const std::string &uri);
-            // endregion
 
+            /**
+            * @brief 将 HTTP 响应格式化到输出流
+            * @param os 输出流
+            * @return 输出流
+            */
             std::ostream &dump(std::ostream &os) const;
 
+            /**
+             * @brief 将 HTTP 响应格式化为字符串
+             * @return 字符串
+             */
             std::string toString() const;
 
         private:
