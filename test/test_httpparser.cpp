@@ -37,9 +37,9 @@ const char test_response_data[] = "HTTP/1.1 301 Moved Permanently\r\n"
                                   "<A HREF=\"http://www.google.com/\">here</A>.\r\n"
                                   "</BODY></HTML>\r\n";
 
-void test_request(std::string str) {
+void test_request(const std::string& str) {
     http::HttpRequestParser parser;
-    parser.execute(&str[0], str.size());
+    parser.execute(const_cast<char *>(str.data()), str.size());
     if (parser.getError()) {
         std::cout << "parser execute fail" << std::endl;
     } else {
@@ -48,9 +48,9 @@ void test_request(std::string str) {
     std::cout << "==============================" << std::endl;
 }
 
-void test_response(std::string str) {
+void test_response(const std::string& str) {
     http::HttpResponseParser parser;
-    parser.execute(&str[0], str.size());
+    parser.execute(const_cast<char *>(str.data()), str.size());
     if (parser.getError()) {
         std::cout << "parser execute fail" << std::endl;
     } else {
