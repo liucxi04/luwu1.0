@@ -83,6 +83,8 @@ namespace luwu {
              */
             explicit HttpRequest(HttpMethod method = HttpMethod::GET, uint8_t version = 0x11, bool close = true);
 
+            void initState();
+
             // region # Getter and Setter
             HttpMethod getMethod() const { return method_; }
 
@@ -206,6 +208,8 @@ namespace luwu {
              * @param close 是否保持长连接
              */
             explicit HttpResponse(uint8_t version = 0x11, bool close = true);
+
+            void initState();
 
             // region # Getter and Setter
             uint8_t getVersion() const {return version_; }

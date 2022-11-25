@@ -7,11 +7,27 @@
 
 namespace luwu {
     namespace http {
-        // TODO 用在哪里
+        // 用在 http_session
         static const uint64_t s_http_request_buffer_size = 4 * 1024;
         static const uint64_t s_http_request_max_body_size = 64 * 1024 * 1024;
         static const uint64_t s_http_response_buffer_size = 4 * 1024;
         static const uint64_t s_http_response_max_body_size = 64 * 1024 * 1024;
+
+        uint64_t HttpRequestParser::GetHttpRequestBufferSize() {
+            return s_http_request_buffer_size;
+        }
+
+        uint64_t HttpRequestParser::GetHttpRequestMaxBodySize() {
+            return s_http_request_max_body_size;
+        }
+
+        uint64_t HttpResponseParser::GetHttpResponseBufferSize() {
+            return s_http_response_buffer_size;
+        }
+
+        uint64_t HttpResponseParser::GetHttpResponseMaxBodySize() {
+            return s_http_response_max_body_size;
+        }
 
         // http 请求报文 --- 开始解析
         static int on_request_message_begin_cb(http_parser *parser) {
