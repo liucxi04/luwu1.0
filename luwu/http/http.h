@@ -79,7 +79,7 @@ namespace luwu {
              * @brief 构造函数
              * @param method 请求方法
              * @param version 协议版本
-             * @param close 是否保持长连接
+             * @param close 是否保持长连接，默认不保持
              */
             explicit HttpRequest(HttpMethod method = HttpMethod::GET, uint8_t version = 0x11, bool close = true);
 
@@ -205,7 +205,7 @@ namespace luwu {
             /**
              * @brief 构造函数
              * @param version 协议版本
-             * @param close 是否保持长连接
+             * @param close 是否保持长连接，默认不保持
              */
             explicit HttpResponse(uint8_t version = 0x11, bool close = true);
 

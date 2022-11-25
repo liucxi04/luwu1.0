@@ -49,13 +49,12 @@ namespace luwu {
     namespace http {
         HttpRequest::HttpRequest(HttpMethod method, uint8_t version, bool close)
             : method_(method), version_(version), close_(close) , step_(0) {
-            initState();
         }
 
         void HttpRequest::initState() {
             std::string conn = getHeader("Connection");
             if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
-                close_ = true;
+                close_ = false;
             }
         }
 
@@ -157,13 +156,12 @@ namespace luwu {
 
         HttpResponse::HttpResponse(uint8_t version, bool close)
             : version_(version), status_(HttpStatus::OK), close_(close) {
-            initState();
         }
 
         void HttpResponse::initState() {
             std::string conn = getHeader("Connection");
             if (strcasecmp(conn.c_str(), "keep-alive") == 0) {
-                close_ = true;
+                close_ = false;
             }
         }
 
