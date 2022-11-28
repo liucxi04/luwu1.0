@@ -30,6 +30,8 @@ namespace luwu {
          * @brief HTTP 响应状态
          */
         enum HttpStatus {
+            SWITCHING_PROTOCOLS = 101,
+
             OK = 200,
             NO_CONTENT = 204,
             PARTIAL_CONTENT = 206,
@@ -137,6 +139,11 @@ namespace luwu {
             bool isClose() const { return close_; }
 
             void setClose(bool close) { close_ = close; }
+
+            bool isWebsocket() const { return websocket_; }
+
+            void setWebsocket(bool websocket) { websocket_ = websocket; }
+
             // endregion
 
             /**
@@ -192,6 +199,8 @@ namespace luwu {
             MapType cookies_;
             /// 是否长连接，是否自动关闭
             bool close_;
+            /// 是否是 websocket
+            bool websocket_;
         };
 
         /**
@@ -235,6 +244,10 @@ namespace luwu {
             bool isClose() const { return close_; }
 
             void setClose(bool close) { close_ = close; }
+
+            bool isWebsocket() const { return websocket_; }
+
+            void setWebsocket(bool websocket) { websocket_ = websocket; }
             // endregion
 
             /**
@@ -279,6 +292,8 @@ namespace luwu {
             std::string body_;
             /// 是否长连接，是否自动关闭
             bool close_;
+            /// 是否是 websocket
+            bool websocket_;
         };
     }
 }

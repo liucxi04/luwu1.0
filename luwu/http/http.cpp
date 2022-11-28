@@ -26,6 +26,7 @@ namespace luwu {
 
     std::string http::HttpStatusToString(http::HttpStatus status) {
 #define XX(name, s) if(status == s) { return #name; }
+        XX(SWITCHING_PROTOCOLS, SWITCHING_PROTOCOLS)
         XX(OK, OK)
         XX(NO_CONTENT, NO_CONTENT)
         XX(PARTIAL_CONTENT, PARTIAL_CONTENT)
@@ -48,7 +49,7 @@ namespace luwu {
 
     namespace http {
         HttpRequest::HttpRequest(HttpMethod method, uint8_t version, bool close)
-            : method_(method), version_(version), close_(close) , step_(0) {
+            : method_(method), version_(version), close_(close) , step_(0), websocket_(false) {
         }
 
         void HttpRequest::initState() {
@@ -155,7 +156,7 @@ namespace luwu {
         }
 
         HttpResponse::HttpResponse(uint8_t version, bool close)
-            : version_(version), status_(HttpStatus::OK), close_(close) {
+            : version_(version), status_(HttpStatus::OK), close_(close), websocket_(false) {
         }
 
         void HttpResponse::initState() {
