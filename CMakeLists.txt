@@ -24,7 +24,7 @@ aux_source_directory(./luwu/http/http-parser PARSER_LIST)
 set(LIB_SRC ${BASE_LIST} ${UTIL_LIST} ${HTTP_LIST} ${PARSER_LIST} ${STREAM_LIST})
 
 # 定义需要连接的动态库
-set(LIBS pthread dl)
+set(LIBS pthread dl ssl crypto)
 
 # 编译生成可执行程序
 if (BUILD_TEST)
@@ -67,8 +67,12 @@ if (BUILD_TEST)
 #    add_executable(test_http_parser "test/test_http_parser.cpp" ${LIB_SRC})
 #    target_link_libraries(test_http_parser ${LIBS})
 
-    add_executable(test_http_server "test/test_http_server.cpp" ${LIB_SRC})
-    target_link_libraries(test_http_server ${LIBS})
+#    add_executable(test_http_server "test/test_http_server.cpp" ${LIB_SRC})
+#    target_link_libraries(test_http_server ${LIBS})
+
+    add_executable(test_ws_server "test/test_ws_server.cpp" ${LIB_SRC})
+    target_link_libraries(test_ws_server ${LIBS})
+
 
 #    add_executable(test_ "test/test.cpp" ${LIB_SRC})
 #    target_link_libraries(test_ ${LIBS})

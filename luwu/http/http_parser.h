@@ -16,10 +16,6 @@ namespace luwu {
         class HttpRequestParser {
         public:
             using ptr = std::shared_ptr<HttpRequestParser>;
-
-            static uint64_t GetHttpRequestBufferSize();
-
-            static uint64_t GetHttpRequestMaxBodySize();
             /**
              * @brief 构造函数
              */
@@ -70,10 +66,6 @@ namespace luwu {
         class HttpResponseParser {
         public:
             using ptr = std::shared_ptr<HttpResponseParser>;
-
-            static uint64_t GetHttpResponseBufferSize();
-
-            static uint64_t GetHttpResponseMaxBodySize();
 
             /**
              * @brief 构造函数

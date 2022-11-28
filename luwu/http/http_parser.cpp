@@ -7,28 +7,6 @@
 
 namespace luwu {
     namespace http {
-        // 用在 http_session
-        static const uint64_t s_http_request_buffer_size = 4 * 1024;
-        static const uint64_t s_http_request_max_body_size = 64 * 1024 * 1024;
-        static const uint64_t s_http_response_buffer_size = 4 * 1024;
-        static const uint64_t s_http_response_max_body_size = 64 * 1024 * 1024;
-
-        uint64_t HttpRequestParser::GetHttpRequestBufferSize() {
-            return s_http_request_buffer_size;
-        }
-
-        uint64_t HttpRequestParser::GetHttpRequestMaxBodySize() {
-            return s_http_request_max_body_size;
-        }
-
-        uint64_t HttpResponseParser::GetHttpResponseBufferSize() {
-            return s_http_response_buffer_size;
-        }
-
-        uint64_t HttpResponseParser::GetHttpResponseMaxBodySize() {
-            return s_http_response_max_body_size;
-        }
-
         // http 请求报文 --- 开始解析
         static int on_request_message_begin_cb(http_parser *parser) {
             return 0;
@@ -134,8 +112,8 @@ namespace luwu {
         size_t HttpRequestParser::execute(char *data, size_t len) {
             size_t n = http_parser_execute(&parser_, &http_request_parser, data, len);
             if (parser_.upgrade) {
-                // TODO websocket
-                setError(HPE_UNKNOWN);
+                // websocket
+                // setError(HPE_UNKNOWN);
             } else if (static_cast<int>(parser_.http_errno) != 0) {
                 setError(static_cast<int>(parser_.http_errno));
             } else {
