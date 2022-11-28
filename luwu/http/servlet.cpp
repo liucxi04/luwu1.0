@@ -2,7 +2,7 @@
 // Created by liucxi on 2022/11/24.
 //
 
-#include "http_servlet.h"
+#include "servlet.h"
 #include <fnmatch.h>
 #include <utility>
 #include <iostream>
@@ -312,11 +312,11 @@ namespace luwu {
                                                   "</html>";
         // endregion
 
-        ServletFunction::ServletFunction(std::string name, handle_func func)
-            : Servlet(std::move(name)), func_(std::move(func)){
+        HttpServlet::HttpServlet(std::string name, handle_func func)
+            : ServletBase(std::move(name)), func_(std::move(func)){
         }
 
-        int ServletFunction::handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr session) {
+        int HttpServlet::handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr session) {
             if (func_) {
                 return func_(req, rsp, session);
             }
@@ -330,6 +330,17 @@ namespace luwu {
             return 0;
         }
 
+        WSServlet::WSServlet(std::string name, handle_func handel)
+                : ServletBase(std::move(name)), handel_(std::move(handel)) {
+        }
+
+        int WSServlet::handle(HttpRequest::ptr req, WSFrameMessage::ptr msg, WSConnection::ptr conn) {
+            if (handel_) {
+                return handel_(req, msg, conn);
+            }
+            return -1;
+        }
+
         ServletDispatch::ServletDispatch(std::string name)
             : name_(std::move(name)), default_(new ServletNotFound){
         }
@@ -337,18 +348,27 @@ namespace luwu {
         int ServletDispatch::handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr session) {
             auto servlet = getMatchedServlet(req->getPath());
             if (servlet) {
-                return servlet->handle(req, rsp, session);
+                return std::dynamic_pointer_cast<HttpServlet>(servlet)->handle(req, rsp, session);
+            } else {
+                return getDefaultServlet()->handle(req, rsp, session);
+            }
+        }
+
+        int ServletDispatch::handle(HttpRequest::ptr req, WSFrameMessage::ptr rsp, WSConnection::ptr session) {
+            auto servlet = getMatchedServlet(req->getPath());
+            if (servlet) {
+                return std::dynamic_pointer_cast<WSServlet>(servlet)->handle(req, rsp, session);
             }
             return -1;
         }
 
-        Servlet::ptr ServletDispatch::getExactServlet(const std::string &uri) {
+        ServletBase::ptr ServletDispatch::getExactServlet(const std::string &uri) {
             RWMutex::ReadLock lock(mutex_);
             auto it = exact_.find(uri);
             return it == exact_.end() ? nullptr : it->second;
         }
 
-        Servlet::ptr ServletDispatch::getFuzzyServlet(const std::string &uri) {
+        ServletBase::ptr ServletDispatch::getFuzzyServlet(const std::string &uri) {
             RWMutex::ReadLock lock(mutex_);
             for (auto &f : fuzzy_) {
                 if (!fnmatch(f.first.c_str(), uri.c_str(), 0)) {
@@ -358,7 +378,7 @@ namespace luwu {
             return nullptr;
         }
 
-        Servlet::ptr ServletDispatch::getMatchedServlet(const std::string &uri) {
+        ServletBase::ptr ServletDispatch::getMatchedServlet(const std::string &uri) {
             auto servlet1 = getExactServlet(uri);
             if (servlet1) {
                 return servlet1;
@@ -367,26 +387,34 @@ namespace luwu {
             if (servlet2) {
                 return servlet2;
             }
-            return default_;
+            return nullptr;
         }
 
-        void ServletDispatch::addExactServlet(const std::string &uri, Servlet::ptr servlet) {
+        void ServletDispatch::addExactServlet(const std::string &uri, ServletBase::ptr servlet) {
             RWMutex::WriteLock lock(mutex_);
             exact_[uri] = std::move(servlet);
         }
 
-        void ServletDispatch::addExactServlet(const std::string &uri, ServletFunction::handle_func func) {
-            addExactServlet(uri, std::make_shared<ServletFunction>(uri, std::move(func)));
+        void ServletDispatch::addExactHttpServlet(const std::string &uri, HttpServlet::handle_func func) {
+            addExactServlet(uri, std::make_shared<HttpServlet>(uri, std::move(func)));
         }
 
-        void ServletDispatch::addFuzzyServlet(const std::string &uri, Servlet::ptr servlet) {
+        void ServletDispatch::addExactWSServlet(const std::string &uri, WSServlet::handle_func func) {
+            addExactServlet(uri, std::make_shared<WSServlet>(uri, std::move(func)));
+        }
+
+        void ServletDispatch::addFuzzyServlet(const std::string &uri, ServletBase::ptr servlet) {
             delFuzzyServlet(uri);
             RWMutex::WriteLock lock(mutex_);
             fuzzy_.emplace_back(uri, std::move(servlet));
         }
 
-        void ServletDispatch::addFuzzyServlet(const std::string &uri, ServletFunction::handle_func func) {
-            addFuzzyServlet(uri, std::make_shared<ServletFunction>(uri, std::move(func)));
+        void ServletDispatch::addFuzzyHttpServlet(const std::string &uri, HttpServlet::handle_func func) {
+            addFuzzyServlet(uri, std::make_shared<HttpServlet>(uri, std::move(func)));
+        }
+
+        void ServletDispatch::addFuzzyWSServlet(const std::string &uri, WSServlet::handle_func func) {
+            addFuzzyServlet(uri, std::make_shared<WSServlet>(uri, std::move(func)));
         }
 
         void ServletDispatch::delExactServlet(const std::string &uri) {

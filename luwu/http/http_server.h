@@ -5,7 +5,7 @@
 #ifndef LUWU_HTTP_SERVER_H
 #define LUWU_HTTP_SERVER_H
 
-#include "http_servlet.h"
+#include "servlet.h"
 #include "../tcp_server.h"
 
 namespace luwu {

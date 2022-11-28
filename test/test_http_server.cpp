@@ -12,7 +12,7 @@ void test_http_server() {
     server->bind(addr);
 
     auto dispatch = server->getDispatch();
-    dispatch->addExactServlet("/luwu/xx", [](http::HttpRequest::ptr req,
+    dispatch->addExactHttpServlet("/luwu/xx", [](http::HttpRequest::ptr req,
                                             http::HttpResponse::ptr rsp,
                                             http::HttpConnection::ptr conn) -> int {
 
@@ -20,7 +20,7 @@ void test_http_server() {
         return 0;
     });
 
-    dispatch->addFuzzyServlet("/luwu/*", [](http::HttpRequest::ptr req,
+    dispatch->addFuzzyHttpServlet("/luwu/*", [](http::HttpRequest::ptr req,
                                            http::HttpResponse::ptr rsp,
                                            http::HttpConnection::ptr conn) -> int {
         rsp->setBody(req->toString());

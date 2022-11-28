@@ -2,8 +2,8 @@
 // Created by liucxi on 2022/11/21.
 //
 
-#ifndef LUWU_HTTP_H
-#define LUWU_HTTP_H
+#ifndef LUWU_MESSAGE_H
+#define LUWU_MESSAGE_H
 
 #include <memory>
 #include <vector>
@@ -297,4 +297,4 @@ namespace luwu {
         };
     }
 }
-#endif //LUWU_HTTP_H
+#endif //LUWU_MESSAGE_H
