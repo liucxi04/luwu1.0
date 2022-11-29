@@ -92,8 +92,6 @@ namespace luwu {
 
             if (!body_.empty()) {
                 os << body_;
-            } else {
-                os << "\r\n";
             }
             return os;
         }
@@ -209,8 +207,6 @@ namespace luwu {
 
             if (!body_.empty()) {
                 os << body_;
-            } else {
-                os << "\r\n";
             }
             return os;
         }

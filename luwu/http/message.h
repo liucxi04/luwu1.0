@@ -85,6 +85,9 @@ namespace luwu {
              */
             explicit HttpRequest(HttpMethod method = HttpMethod::GET, uint8_t version = 0x11, bool close = true);
 
+            /**
+             * @brief 初始化长连接标识
+             */
             void initState();
 
             // region # Getter and Setter
@@ -218,6 +221,9 @@ namespace luwu {
              */
             explicit HttpResponse(uint8_t version = 0x11, bool close = true);
 
+            /**
+             * @brief 初始化长连接标识
+             */
             void initState();
 
             // region # Getter and Setter
