@@ -112,8 +112,7 @@ namespace luwu {
         size_t HttpRequestParser::execute(char *data, size_t len) {
             size_t n = http_parser_execute(&parser_, &http_request_parser, data, len);
             if (parser_.upgrade) {
-                // websocket
-                // setError(HPE_UNKNOWN);
+                data_->setWebsocket(true);
             } else if (static_cast<int>(parser_.http_errno) != 0) {
                 setError(static_cast<int>(parser_.http_errno));
             } else {
