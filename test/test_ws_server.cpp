@@ -12,7 +12,7 @@ void test_http_server() {
     server->bind(addr);
 
     auto dispatch = server->getDispatch();
-    dispatch->addExactWSServlet("/luwu/xx", [](http::HttpRequest::ptr header,
+    dispatch->addExactWSServlet("/luwu", [](http::HttpRequest::ptr header,
                                              http::WSFrameMessage::ptr msg,
                                              http::WSConnection::ptr conn) -> int {
 
