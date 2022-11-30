@@ -96,6 +96,22 @@ namespace luwu {
      * @return 处理后的字符串
      */
     std::string trim(const std::string &str, const std::string &delimit = " \t\r\n");
+
+    /**
+     * @brief base64 编码算法
+     * @param data 需要处理的数据
+     * @param len 数据长度
+     * @return 处理后的字符串
+     */
+    std::string base64encode(const void* data, size_t len);
+
+    /**
+     * @brief sha1 散列算法
+     * @param data 需要处理的数据
+     * @param len 数据长度
+     * @return 处理后的字符串
+     */
+    std::string sha1sum(const void *data, size_t len);
 }
 
 #endif //LUWU_UTIL_H

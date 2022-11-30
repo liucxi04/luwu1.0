@@ -72,10 +72,6 @@ if (BUILD_TEST)
 
     add_executable(test_ws_server "test/test_ws_server.cpp" ${LIB_SRC})
     target_link_libraries(test_ws_server ${LIBS})
-
-
-    add_executable(test_ "test/test.cpp" ${LIB_SRC})
-    target_link_libraries(test_ ${LIBS})
 endif ()
 
 # 编译生成动态库
