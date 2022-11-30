@@ -28,44 +28,44 @@ set(LIBS pthread dl ssl crypto)
 
 # 编译生成可执行程序
 if (BUILD_TEST)
-#    add_executable(test_log "test/test_logger.cpp" ${LIB_SRC})
-#    target_link_libraries(test_log ${LIBS})
-#
-#    add_executable(test_fiber "test/test_fiber.cpp" ${LIB_SRC})
-#    target_link_libraries(test_fiber ${LIBS})
-#
-#    add_executable(test_thread "test/test_thread.cpp" ${LIB_SRC})
-#    target_link_libraries(test_thread ${LIBS})
-#
-#    add_executable(test_scheduler "test/test_scheduler.cpp" ${LIB_SRC})
-#    target_link_libraries(test_scheduler ${LIBS})
-#
-#    add_executable(test_clock "test/test_clock.cpp" ${LIB_SRC})
-#    target_link_libraries(test_clock ${LIBS})
-#
-#    add_executable(test_reactor "test/test_reactor.cpp" ${LIB_SRC})
-#    target_link_libraries(test_reactor ${LIBS})
-#
-#    add_executable(test_hook "test/test_hook.cpp" ${LIB_SRC})
-#    target_link_libraries(test_hook ${LIBS})
-#
-#    add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
-#    target_link_libraries(test_address ${LIBS})
-#
-#    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
-#    target_link_libraries(test_socket ${LIBS})
+    add_executable(test_log "test/test_logger.cpp" ${LIB_SRC})
+    target_link_libraries(test_log ${LIBS})
 
-#    add_executable(test_bytearray "test/test_bytearray.cpp" ${LIB_SRC})
-#    target_link_libraries(test_bytearray ${LIBS})
+    add_executable(test_fiber "test/test_fiber.cpp" ${LIB_SRC})
+    target_link_libraries(test_fiber ${LIBS})
 
-#    add_executable(test_tcpserver "test/test_tcpserver.cpp" ${LIB_SRC})
-#    target_link_libraries(test_tcpserver ${LIBS})
+    add_executable(test_thread "test/test_thread.cpp" ${LIB_SRC})
+    target_link_libraries(test_thread ${LIBS})
 
-#    add_executable(test_message "test/test_message.cpp" ${LIB_SRC})
-#    target_link_libraries(test_message ${LIBS})
-#
-#    add_executable(test_parser "test/test_parser.cpp" ${LIB_SRC})
-#    target_link_libraries(test_parser ${LIBS})
+    add_executable(test_scheduler "test/test_scheduler.cpp" ${LIB_SRC})
+    target_link_libraries(test_scheduler ${LIBS})
+
+    add_executable(test_clock "test/test_clock.cpp" ${LIB_SRC})
+    target_link_libraries(test_clock ${LIBS})
+
+    add_executable(test_reactor "test/test_reactor.cpp" ${LIB_SRC})
+    target_link_libraries(test_reactor ${LIBS})
+
+    add_executable(test_hook "test/test_hook.cpp" ${LIB_SRC})
+    target_link_libraries(test_hook ${LIBS})
+
+    add_executable(test_address "test/test_address.cpp" ${LIB_SRC})
+    target_link_libraries(test_address ${LIBS})
+
+    add_executable(test_socket "test/test_socket.cpp" ${LIB_SRC})
+    target_link_libraries(test_socket ${LIBS})
+
+    add_executable(test_bytearray "test/test_bytearray.cpp" ${LIB_SRC})
+    target_link_libraries(test_bytearray ${LIBS})
+
+    add_executable(test_tcpserver "test/test_tcpserver.cpp" ${LIB_SRC})
+    target_link_libraries(test_tcpserver ${LIBS})
+
+    add_executable(test_message "test/test_message.cpp" ${LIB_SRC})
+    target_link_libraries(test_message ${LIBS})
+
+    add_executable(test_parser "test/test_parser.cpp" ${LIB_SRC})
+    target_link_libraries(test_parser ${LIBS})
 
     add_executable(test_http_server "test/test_http_server.cpp" ${LIB_SRC})
     target_link_libraries(test_http_server ${LIBS})

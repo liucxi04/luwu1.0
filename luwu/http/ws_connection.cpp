@@ -47,7 +47,7 @@ namespace luwu {
             return ss.str();
         }
 
-        HttpRequest::ptr WSConnection::handelShake() {
+        HttpRequest::ptr WSConnection::handleShake() {
             HttpRequest::ptr req;
             // do while (false) 避免了 if 语句的层层嵌套
             do {

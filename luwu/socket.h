@@ -163,7 +163,7 @@ namespace luwu {
 
         Address::ptr getLocalAddress() { return local_address; }
 
-        Address::ptr getPeerAddress() {return peer_address; }
+        Address::ptr getPeerAddress() { return peer_address; }
 
         int getError() const;
         // endregion

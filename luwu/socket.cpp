@@ -303,7 +303,7 @@ namespace luwu {
 
         socklen_t addrlen = addr->getAddrLen();
         if (getpeername(fd_, addr->getAddr(), &addrlen) == 0) {
-            local_address = addr;
+            peer_address = addr;
         }
     }
 }

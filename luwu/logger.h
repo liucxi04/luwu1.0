@@ -217,8 +217,7 @@ namespace luwu {
          * 默认格式：" [%p] [%c] %d{%Y-%m-%d %H:%M:%S} [%rms]%T [thread_id: %t] [thread_name: %n] [fiber_id: %b]%T%f:%a:%l%T%m%N"
          * 格式描述： [日志级别] [日志器名称] 年-月-日 时:分:秒 [累计运行毫秒数] 线程id 线程名称 协程id  文件名:函数名:行号 日志消息
          */
-        explicit LogFormatter(std::string pattern =
-        " [%p] [%c] %d{%Y-%m-%d %H:%M:%S} [%rms]%T [thread_id: %t] [thread_name: %n] [fiber_id: %b]%T%f:%a:%l%T%m%N");
+        explicit LogFormatter(std::string pattern =" [%p] [%c] %d{%Y-%m-%d %H:%M:%S} %f:%l%T%m%N");
 
         /**
          * @brief 解析 pattern 并构造 FormatItems

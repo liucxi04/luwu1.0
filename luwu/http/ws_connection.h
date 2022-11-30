@@ -106,7 +106,7 @@ namespace luwu {
              * @brief 处理握手请求
              * @return http 请求
              */
-            HttpRequest::ptr handelShake();
+            HttpRequest::ptr handleShake();
 
             /**
              * @brief 接收 ws 消息
