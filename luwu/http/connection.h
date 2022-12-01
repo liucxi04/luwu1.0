@@ -5,8 +5,8 @@
 #ifndef LUWU_CONNECTION_H
 #define LUWU_CONNECTION_H
 
-#include "socket.h"
-#include "byte_array.h"
+#include "../socket.h"
+#include "../byte_array.h"
 
 namespace luwu {
     namespace http {

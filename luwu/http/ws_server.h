@@ -5,7 +5,7 @@
 #ifndef LUWU_WS_SERVER_H
 #define LUWU_WS_SERVER_H
 
-#include "tcp_server.h"
+#include "../tcp_server.h"
 #include "servlet.h"
 
 namespace luwu {

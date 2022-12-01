@@ -3,7 +3,7 @@
 //
 
 #include "util.h"
-#include "fiber.h"
+#include "../fiber.h"
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <sys/time.h>

@@ -5,11 +5,11 @@
 #ifndef LUWU_THREAD_H
 #define LUWU_THREAD_H
 
-#include "utils/noncopyable.h"
 #include <string>
 #include <memory>
 #include <functional>
 #include "utils/mutex.h"
+#include "utils/noncopyable.h"
 
 namespace luwu {
     /**

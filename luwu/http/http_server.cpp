@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "http_server.h"
-#include "logger.h"
+#include "../logger.h"
 
 namespace luwu {
     namespace http {

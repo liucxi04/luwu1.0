@@ -6,7 +6,7 @@
 #define LUWU_ASSERTS_H
 
 #include <cassert>
-#include "logger.h"
+#include "../logger.h"
 #include "util.h"
 
 #define LUWU_ASSERT(x) \
