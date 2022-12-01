@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 include_directories(./luwu)
 
 # 是否编译测试文件
-option(BUILD_TEST "ON for compile test" ON)
+option(BUILD_TEST "ON for compile test" OFF)
 
 # 定义参与编译的源文件
 aux_source_directory(./luwu BASE_LIST)
@@ -75,4 +75,4 @@ if (BUILD_TEST)
 endif ()
 
 # 编译生成动态库
-#add_library(luwu SHARED ${LIB_SRC})
+add_library(luwu SHARED ${LIB_SRC})
