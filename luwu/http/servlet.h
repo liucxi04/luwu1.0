@@ -34,9 +34,13 @@ namespace luwu {
              */
             virtual ~ServletBase() = default;
 
+            virtual int onConnect(HttpRequest::ptr req, WSConnection::ptr conn) = 0;
+
             virtual int handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr conn) = 0;
 
             virtual int handle(HttpRequest::ptr req, WSFrameMessage::ptr mag, WSConnection::ptr conn) = 0;
+
+            virtual int onClose(HttpRequest::ptr req, WSConnection::ptr conn) = 0;
 
             const std::string &getName() const { return name_; }
 
@@ -71,6 +75,10 @@ namespace luwu {
 
             int handle(HttpRequest::ptr req, WSFrameMessage::ptr mag, WSConnection::ptr conn) override { return 0; }
 
+            int onConnect(HttpRequest::ptr req, WSConnection::ptr conn) override { return 0; };
+
+            int onClose(HttpRequest::ptr req, WSConnection::ptr conn) override { return 0; };
+
         private:
             /// 业务处理函数
             handle_func func_;
@@ -99,6 +107,10 @@ namespace luwu {
             int handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr session) override;
 
             int handle(HttpRequest::ptr req, WSFrameMessage::ptr mag, WSConnection::ptr conn) override { return 0; }
+
+            int onConnect(HttpRequest::ptr req, WSConnection::ptr conn) override { return 0; };
+
+            int onClose(HttpRequest::ptr req, WSConnection::ptr conn) override { return 0; };
         };
 
         /**
@@ -108,13 +120,24 @@ namespace luwu {
         public:
             using ptr = std::shared_ptr<WSServlet>;
             using handle_func = std::function<int(HttpRequest::ptr req, WSFrameMessage::ptr msg, WSConnection::ptr conn)>;
+            using callback = std::function<int(HttpRequest::ptr req, WSConnection::ptr conn)>;
 
             /**
              * @brief 构造函数
              * @param name servlet 名称
              * @param handel 业务处理函数
+             * @param on_connect 新连接回调
+             * @param on_close 关闭连接回调
              */
-            WSServlet(std::string name, handle_func handel);
+            WSServlet(std::string name, handle_func handel, callback on_connect = nullptr, callback on_close = nullptr);
+
+            /**
+             * @brief 处理新连接回调
+             * @param req http 请求
+             * @param conn ws 连接
+             * @return 处理结果，-1 表示错误
+             */
+            int onConnect(HttpRequest::ptr req, WSConnection::ptr conn) override;
 
             /**
              * @brief ws servlet 业务处理函数
@@ -125,11 +148,23 @@ namespace luwu {
              */
             int handle(HttpRequest::ptr req, WSFrameMessage::ptr msg, WSConnection::ptr conn) override;
 
+            /**
+             * @brief 处理关闭连接回调
+             * @param req http 请求
+             * @param conn ws 连接
+             * @return 处理结果，-1 表示错误
+             */
+            int onClose(HttpRequest::ptr req, WSConnection::ptr conn) override;
+
             int handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr conn) override { return 0; }
 
         private:
             /// 业务处理函数
             handle_func handel_;
+            /// 新连接回调
+            callback on_connect_;
+            /// 关闭连接回调
+            callback on_close_;
         };
 
 
@@ -161,13 +196,15 @@ namespace luwu {
 
             void addExactHttpServlet(const std::string &uri, HttpServlet::handle_func func);
 
-            void addExactWSServlet(const std::string &uri, WSServlet::handle_func func);
+            void addExactWSServlet(const std::string &uri, WSServlet::handle_func func,
+                                   WSServlet::callback on_connect = nullptr, WSServlet::callback on_close = nullptr);
 
             void addFuzzyServlet(const std::string &uri, ServletBase::ptr servlet);
 
             void addFuzzyHttpServlet(const std::string &uri, HttpServlet::handle_func func);
 
-            void addFuzzyWSServlet(const std::string &uri, WSServlet::handle_func func);
+            void addFuzzyWSServlet(const std::string &uri, WSServlet::handle_func func,
+                                   WSServlet::callback on_connect = nullptr, WSServlet::callback on_close = nullptr);
 
             void delExactServlet(const std::string &uri);
 

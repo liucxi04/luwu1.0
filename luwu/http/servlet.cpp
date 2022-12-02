@@ -320,7 +320,7 @@ namespace luwu {
             if (func_) {
                 return func_(req, rsp, session);
             }
-            return -1;
+            return 0;
         }
 
         int ServletNotFound::handle(HttpRequest::ptr req, HttpResponse::ptr rsp, HttpConnection::ptr session) {
@@ -330,15 +330,30 @@ namespace luwu {
             return 0;
         }
 
-        WSServlet::WSServlet(std::string name, handle_func handel)
-                : ServletBase(std::move(name)), handel_(std::move(handel)) {
+        WSServlet::WSServlet(std::string name, handle_func handel, callback on_connect, callback on_close)
+                : ServletBase(std::move(name)), handel_(std::move(handel))
+                , on_connect_(std::move(on_connect)), on_close_(std::move(on_close)) {
+        }
+
+        int WSServlet::onConnect(HttpRequest::ptr req, WSConnection::ptr conn) {
+            if (on_connect_) {
+                return on_connect_(req, conn);
+            }
+            return 0;
+        }
+
+        int WSServlet::onClose(HttpRequest::ptr req, WSConnection::ptr conn) {
+            if (on_close_) {
+                return on_close_(req, conn);
+            }
+            return 0;
         }
 
         int WSServlet::handle(HttpRequest::ptr req, WSFrameMessage::ptr msg, WSConnection::ptr conn) {
             if (handel_) {
                 return handel_(req, msg, conn);
             }
-            return -1;
+            return 0;
         }
 
         ServletDispatch::ServletDispatch(std::string name)
@@ -399,8 +414,10 @@ namespace luwu {
             addExactServlet(uri, std::make_shared<HttpServlet>(uri, std::move(func)));
         }
 
-        void ServletDispatch::addExactWSServlet(const std::string &uri, WSServlet::handle_func func) {
-            addExactServlet(uri, std::make_shared<WSServlet>(uri, std::move(func)));
+        void ServletDispatch::addExactWSServlet(const std::string &uri, WSServlet::handle_func func,
+                                                WSServlet::callback on_connect, WSServlet::callback on_close) {
+            addExactServlet(uri, std::make_shared<WSServlet>(uri, std::move(func),
+                                 std::move(on_connect), std::move(on_close)));
         }
 
         void ServletDispatch::addFuzzyServlet(const std::string &uri, ServletBase::ptr servlet) {
@@ -413,8 +430,10 @@ namespace luwu {
             addFuzzyServlet(uri, std::make_shared<HttpServlet>(uri, std::move(func)));
         }
 
-        void ServletDispatch::addFuzzyWSServlet(const std::string &uri, WSServlet::handle_func func) {
-            addFuzzyServlet(uri, std::make_shared<WSServlet>(uri, std::move(func)));
+        void ServletDispatch::addFuzzyWSServlet(const std::string &uri, WSServlet::handle_func func,
+                                                WSServlet::callback on_connect, WSServlet::callback on_close) {
+            addFuzzyServlet(uri, std::make_shared<WSServlet>(uri, std::move(func),
+                                 std::move(on_connect), std::move(on_close)));
         }
 
         void ServletDispatch::delExactServlet(const std::string &uri) {

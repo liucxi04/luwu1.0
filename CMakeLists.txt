@@ -11,7 +11,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11")
 
 # 设置头文件路径，除了系统路径 /usr/include 还有下面这个
-# include_directories(./luwu)
+include_directories(./luwu)
 
 # 是否编译测试文件
 option(BUILD_TEST "ON for compile test" OFF)

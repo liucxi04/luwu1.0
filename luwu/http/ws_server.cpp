@@ -19,17 +19,24 @@ namespace luwu {
             LUWU_LOG_INFO(LUWU_LOG_ROOT()) << "websocket handle client, client address = "
                                            << client->getPeerAddress()->toString();
 
-            auto rsp = conn->handleShake();
-            if (!rsp) {
+            auto req = conn->handleShake();
+            if (!req) {
                 LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "websocket handle shake return nullptr! client address = "
                                                 << client->getPeerAddress()->toString();
                 return;
             }
 
-            auto servlet = dispatch_->getMatchedServlet(rsp->getPath());
+            auto servlet = dispatch_->getMatchedServlet(req->getPath());
             if (!servlet) {
                 LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "websocket get servlet return nullptr! request path = "
-                                                << rsp->getPath();
+                                                << req->getPath();
+                return;
+            }
+
+            int rt = servlet->onConnect(req, conn);
+            if (rt == -1) {
+                LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "websocket on connect callback return -1! request = "
+                                                << req->toString();
                 return;
             }
 
@@ -40,12 +47,19 @@ namespace luwu {
                                                    << " client address = " << client->getPeerAddress()->toString();
                     break;
                 }
-                int rt = servlet->handle(rsp, msg, conn);
+                rt = servlet->handle(req, msg, conn);
                 if (rt == -1) {
                     LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "websocket handle request return -1! request = "
-                                                    << rsp->toString();
+                                                    << req->toString();
                     break;
                 }
+            }
+
+            rt = servlet->onClose(req, conn);
+            if (rt == -1) {
+                LUWU_LOG_ERROR(LUWU_LOG_ROOT()) << "websocket on close callback return -1! request = "
+                                                << req->toString();
+                return;
             }
         }
     }

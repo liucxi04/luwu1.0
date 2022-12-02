@@ -9,6 +9,14 @@ fi
 
 rm -rf `pwd`/build/*
 
+if [ -d usr/include/luwu ]; then
+  rm -rf usr/include/luwu
+fi
+
+if [ -f usr/lib/libluwu.so ]; then
+  rm usr/lib/libluwu.so
+fi
+
 cd build &&
    cmake .. &&
    make

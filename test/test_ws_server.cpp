@@ -3,6 +3,7 @@
 //
 
 #include "http/ws_server.h"
+#include <iostream>
 
 using namespace luwu;
 
@@ -18,6 +19,12 @@ void test_http_server() {
 
         conn->sendMessage(msg);
         return 0;
+    }, [](http::HttpRequest::ptr header, http::WSConnection::ptr conn) -> int {
+        std::cout << "on connect callback" << std::endl;
+        return 1;
+    }, [](http::HttpRequest::ptr header, http::WSConnection::ptr conn) -> int {
+        std::cout << "on close callback" << std::endl;
+        return 1;
     });
 
     server->start();
