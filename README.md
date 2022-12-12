@@ -1,6 +1,6 @@
 <h1 align="center">Welcome to luwu 👋</h1>
 <p>
-  <img alt="version:1.0.0" src="https://img.shields.io/badge/version-1.0.0-blue" />
+  <img alt="version:1.0" src="https://img.shields.io/badge/version-1.0.0-blue" />
   <img alt="license:MIT" src="https://img.shields.io/badge/license-MIT-brightgreen" />
 </p>
 
