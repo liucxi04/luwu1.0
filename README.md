@@ -33,7 +33,7 @@ autobuild.sh should use bash, you can use `sudo dpkg-reconfigure dash` change fr
 
 👤 **liucxi**
 
-* Website: www.liucxi.xyz
+* Website: blog.liucxi.xyz
 * Github: [@liucxi04](https://github.com/liucxi04)
 
 ## Show your support
