@@ -25,9 +25,6 @@ you can use this framework like this:
 #inlcude <fiber.h>
 ```
 
-## Document
-TODO
-
 ## Note
 The server system is Ubuntu 20.04, using Ubuntu 22.04's default configuration can be a bit problematic.
 
