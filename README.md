@@ -29,11 +29,9 @@ you can use this framework like this:
 the server system is Ubuntu 20.04, using Ubuntu 22.04's default configuration can be a bit problematic.
 
 autobuild.sh should use bash, you can use `sudo dpkg-reconfigure dash` change from dash to bash.
+
 ## Author
-
-👤 **liucxi**
-
-* Website: blog.liucxi.xyz
+* Website: [👤liucxi](blog.liucxi.xyz)
 * Github: [@liucxi04](https://github.com/liucxi04)
 
 ## Show your support
