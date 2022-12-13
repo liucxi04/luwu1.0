@@ -31,7 +31,7 @@ the server system is Ubuntu 20.04, using Ubuntu 22.04's default configuration ca
 autobuild.sh should use bash, you can use `sudo dpkg-reconfigure dash` change from dash to bash.
 
 ## Author
-* Website: [👤liucxi](blog.liucxi.xyz)
+* Website: [liucxi](http://blog.liucxi.xyz)
 * Github: [@liucxi04](https://github.com/liucxi04)
 
 ## Show your support
