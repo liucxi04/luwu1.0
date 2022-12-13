@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <cstring>
+#include <endian.h>
 #include "utils/endian.h"
 
 namespace luwu {
