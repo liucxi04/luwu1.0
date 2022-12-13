@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 # 如果没有 build 目录，创建该目录
