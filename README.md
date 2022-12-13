@@ -43,4 +43,4 @@ Give a ⭐️ if this project helped you!
 ## 📝 License
 
 Copyright © 2022 [liucxi](https://github.com/liucxi04).<br />
-This project is [MIT](https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE) licensed.
+This project is [MIT](https://github.com/liucxi04/luwu1.0/blob/main/LICENSE) licensed.
